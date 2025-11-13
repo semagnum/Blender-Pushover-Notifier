@@ -76,11 +76,20 @@ def render_complete_handler(scene):
     thread = threading.Thread(target=send_pushover_notification, args=(user_key, api_token, message))
     thread.start()
 
+
+def update_render_complete_handler(self, context):
+    if self.is_enabled and render_complete_handler not in bpy.app.handlers.render_complete:
+        bpy.app.handlers.render_complete.append(render_complete_handler)
+    elif render_complete_handler in bpy.app.handlers.render_complete:
+        bpy.app.handlers.render_complete.remove(render_complete_handler)
+
+
 class PushoverNotifierProperties(bpy.types.PropertyGroup):
     is_enabled: bpy.props.BoolProperty(
         name="Enable Notifier",
         description="Enable or disable Pushover notifications",
-        default=True,
+        default=False,
+        update=update_render_complete_handler
     ) # type: ignore
     
     user_key: bpy.props.StringProperty(
@@ -169,8 +178,6 @@ def register():
     for cls in classes:
         bpy.utils.register_class(cls)
     bpy.types.Scene.pushover_notifier = bpy.props.PointerProperty(type=PushoverNotifierProperties)
-    if render_complete_handler not in bpy.app.handlers.render_complete:
-        bpy.app.handlers.render_complete.append(render_complete_handler)
 
 def unregister():
     if render_complete_handler in bpy.app.handlers.render_complete:
