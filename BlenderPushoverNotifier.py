@@ -53,6 +53,9 @@ def render_complete_handler(scene):
     if not pushover_props.is_enabled:
         print("Pushover Notifier: Disabled, notification not sent.")
         return
+    if not bpy.app.online_access:
+        print("Pushover Notifier: Blender is running in offline mode.")
+        return
 
     blend_file_name = bpy.path.basename(bpy.context.blend_data.filepath)
     if not blend_file_name:
@@ -107,6 +110,14 @@ class PUSHOVER_OT_TestNotification(bpy.types.Operator):
     bl_idname = "pushover.test_notification"
     bl_label = "Send Test Notification"
     bl_options = {'REGISTER', 'UNDO'}
+
+    @classmethod
+    def poll(cls, context):
+        if bpy.app.online_access:
+            return True
+        
+        cls.poll_message_set('Blender is running in offline mode')
+        return False
 
     def execute(self, context):
         props = context.scene.pushover_notifier
