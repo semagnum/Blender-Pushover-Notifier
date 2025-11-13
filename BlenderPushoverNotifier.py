@@ -151,21 +151,23 @@ class RENDER_PT_PushoverNotifierPanel(bpy.types.Panel):
     bl_region_type = 'WINDOW'
     bl_context = "render"
 
+    def draw_header(self, context):
+        layout = self.layout
+        layout.prop(context.scene.pushover_notifier, "is_enabled", text="")
+
     def draw(self, context):
         layout = self.layout
         pushover_props = context.scene.pushover_notifier
 
-        col = layout.column()
-        col.prop(pushover_props, "is_enabled")
+        layout.use_property_split = True
         
-        sub = col.column()
+        sub = layout.column()
         sub.active = pushover_props.is_enabled
         sub.prop(pushover_props, "user_key")
         sub.prop(pushover_props, "api_token")
-        sub.prop(pushover_props, "message_format") # <--- NEW: Added to UI
+        sub.prop(pushover_props, "message_format")
         
-        # <---  Added operator button to UI
-        sub.operator(PUSHOVER_OT_TestNotification.bl_idname, icon='PLAY')
+        layout.operator(PUSHOVER_OT_TestNotification.bl_idname, icon='PLAY')
 
 # ---  Added the new Operator to the classes list
 classes = (
